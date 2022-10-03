@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"os"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,23 +39,40 @@ func GetAll(ctx *gin.Context) {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-
-	published, haveFilter := ctx.GetQuery("published")
-	var filteredProducts []Product
-	if haveFilter {
+	price, havePrice := ctx.GetQuery("price")
+	if havePrice {
+		priceInterval := map[string]int{}
+		err := json.Unmarshal([]byte(price), &priceInterval)
+		if err != nil {
+			ctx.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		var filteredProducts []Product
 		for _, product := range products {
-			parsedPublished, err := strconv.ParseBool(published)
-			if err != nil {
-				ctx.JSON(500, gin.H{"error": err.Error()})
-				return
-			}
-			if product.Published == parsedPublished {
+			if product.Price >= priceInterval["gt"] && product.Price <= priceInterval["lt"] {
 				filteredProducts = append(filteredProducts, product)
 			}
 		}
+		ctx.JSON(200, filteredProducts)
+		return
 	}
+	ctx.JSON(200, []Product{})
+	// published, haveFilter := ctx.GetQuery("published")
+	// var filteredProducts []Product
+	// if haveFilter {
+	// 	for _, product := range products {
+	// 		parsedPublished, err := strconv.ParseBool(published)
+	// 		if err != nil {
+	// 			ctx.JSON(500, gin.H{"error": err.Error()})
+	// 			return
+	// 		}
+	// 		if product.Published == parsedPublished {
+	// 			filteredProducts = append(filteredProducts, product)
+	// 		}
+	// 	}
+	// }
 
-	ctx.JSON(200, filteredProducts)
+	// ctx.JSON(200, filteredProducts)
 }
 func GetById(ctx *gin.Context) {
 	id := ctx.Param("id")
