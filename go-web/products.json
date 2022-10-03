@@ -1,0 +1,23 @@
+[
+    {
+        "id": "000001",
+        "name": "Mac pro",
+        "color": "sliver",
+        "price": 2000,
+        "stock": 10,
+        "code": "MP01WQWQE",
+        "published": true,
+        "created_date": "2019-10-10 10:10:10"
+    },
+
+    {
+        "id": "000002",
+        "name": "Mac air",
+        "color": "sliver",
+        "price": 1000,
+        "stock": 10,
+        "code": "MA01WQWQE",
+        "published": true,
+        "created_date": "2019-10-10 10:10:10"
+    }
+]
