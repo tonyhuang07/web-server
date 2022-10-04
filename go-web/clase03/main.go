@@ -14,7 +14,7 @@ type Product struct {
 	Name      string  `json:"name" `
 	Price     float64 `json:"price" `
 	Quality   int     `json:"quality"`
-	Published bool    `json:"published"`
+	Published bool    `json:"published" binding:"required"`
 }
 
 func Create(ctx *gin.Context) {
