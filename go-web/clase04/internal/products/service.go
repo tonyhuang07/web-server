@@ -2,6 +2,7 @@ package products
 
 type Service interface {
 	Store(name string, price float64, quality int, published bool) (Product, error)
+	GetAll() ([]Product, error)
 }
 
 type service struct {
@@ -17,11 +18,20 @@ func (s *service) Store(name string, price float64, quality int, published bool)
 	if err != nil {
 		return Product{}, err
 	}
-
-	product, err := s.repository.Store(lastID+1, name, price, quality, published)
+	lastID++
+	product, err := s.repository.Store(lastID, name, price, quality, published)
 	if err != nil {
 		return Product{}, err
 	}
 
 	return product, nil
+}
+
+func (s *service) GetAll() ([]Product, error) {
+	products, err := s.repository.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
 }

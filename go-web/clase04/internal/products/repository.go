@@ -13,6 +13,8 @@ var lastID int
 
 type Repository interface {
 	Store(id int, name string, price float64, quality int, published bool) (Product, error)
+	GetAll() ([]Product, error)
+	LastID() (int, error)
 }
 
 type repository struct{}
@@ -23,12 +25,13 @@ func NewRepository() Repository {
 
 func (repo *repository) Store(id int, name string, price float64, quality int, published bool) (Product, error) {
 	product := Product{
-		ID:        lastID,
+		ID:        id,
 		Name:      name,
 		Price:     price,
 		Quality:   quality,
 		Published: published,
 	}
+
 	products = append(products, product)
 	lastID = product.ID
 	return product, nil
@@ -36,4 +39,8 @@ func (repo *repository) Store(id int, name string, price float64, quality int, p
 
 func (repo *repository) LastID() (int, error) {
 	return lastID, nil
+}
+
+func (repo *repository) GetAll() ([]Product, error) {
+	return products, nil
 }
