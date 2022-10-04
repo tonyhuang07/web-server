@@ -1,0 +1,27 @@
+package products
+
+type Service interface {
+	Store(name string, price float64, quality int, published bool) (Product, error)
+}
+
+type service struct {
+	repository Repository
+}
+
+func NewService(repository Repository) Service {
+	return &service{repository}
+}
+
+func (s *service) Store(name string, price float64, quality int, published bool) (Product, error) {
+	lastID, err := s.repository.LastID()
+	if err != nil {
+		return Product{}, err
+	}
+
+	product, err := s.repository.Store(lastID+1, name, price, quality, published)
+	if err != nil {
+		return Product{}, err
+	}
+
+	return product, nil
+}
