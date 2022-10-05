@@ -11,7 +11,12 @@ func main() {
 	repository := products.NewRepository()
 	service := products.NewService(repository)
 	product := handler.NewProduct(service)
-	r.POST("/products", product.Store)
-	r.GET("/products", product.GetAll)
+
+	rootProduct := r.Group("/products")
+	rootProduct.POST("/", product.Store)
+	rootProduct.GET("/", product.GetAll)
+	rootProduct.PUT("/:id", product.Update)
+	rootProduct.PATCH("/:id", product.UpdatePrice)
+	rootProduct.DELETE("/:id", product.Delete)
 	r.Run()
 }
