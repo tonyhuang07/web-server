@@ -1,6 +1,10 @@
 package products
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/tonyhuang07/web-server/go-web/clase04/pkg/store"
+)
 
 type Product struct {
 	ID        int     `json:"id" `
@@ -11,7 +15,6 @@ type Product struct {
 }
 
 var products []Product
-var lastID int
 
 type Repository interface {
 	Store(id int, name string, price float64, quality int, published bool) (Product, error)
@@ -22,13 +25,22 @@ type Repository interface {
 	Delete(id int) error
 }
 
-type repository struct{}
+type repository struct {
+	db store.Store
+}
 
-func NewRepository() Repository {
-	return &repository{}
+func NewRepository(db store.Store) Repository {
+	return &repository{
+		db: db,
+	}
 }
 
 func (repo *repository) Store(id int, name string, price float64, quality int, published bool) (Product, error) {
+	var products []Product
+	err := repo.db.Read(&products)
+	if err != nil {
+		return Product{}, err
+	}
 	product := Product{
 		ID:        id,
 		Name:      name,
@@ -38,15 +50,31 @@ func (repo *repository) Store(id int, name string, price float64, quality int, p
 	}
 
 	products = append(products, product)
-	lastID = product.ID
+	if err := repo.db.Write(products); err != nil {
+		return Product{}, err
+	}
+
 	return product, nil
 }
 
 func (repo *repository) LastID() (int, error) {
-	return lastID, nil
+	var products []Product
+	err := repo.db.Read(&products)
+	if err != nil {
+		return 0, err
+	}
+	if len(products) == 0 {
+		return 0, nil
+	}
+	return products[len(products)-1].ID, nil
 }
 
 func (repo *repository) GetAll() ([]Product, error) {
+	var products []Product
+	err := repo.db.Read(&products)
+	if err != nil {
+		return nil, err
+	}
 	return products, nil
 }
 

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -41,6 +42,11 @@ func (p *Product) Store(ctx *gin.Context) {
 }
 
 func (p *Product) GetAll(ctx *gin.Context) {
+	token := ctx.GetHeader("token")
+	if token != os.Getenv("TOKEN") {
+		ctx.JSON(401, gin.H{"error": "invalid token"})
+		return
+	}
 	products, err := p.service.GetAll()
 	if err != nil {
 		ctx.JSON(404, gin.H{"error": err.Error()})

@@ -2,13 +2,20 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/tonyhuang07/web-server/go-web/clase04/cmd/server/handler"
 	"github.com/tonyhuang07/web-server/go-web/clase04/internal/products"
+	"github.com/tonyhuang07/web-server/go-web/clase04/pkg/store"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
 	r := gin.Default()
-	repository := products.NewRepository()
+	database := store.New(store.FileType, "products.json")
+	repository := products.NewRepository(database)
 	service := products.NewService(repository)
 	product := handler.NewProduct(service)
 

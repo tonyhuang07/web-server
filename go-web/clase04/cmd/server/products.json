@@ -1,0 +1,37 @@
+[
+ {
+  "id": 1,
+  "name": "Mac air",
+  "price": 1200,
+  "quality": 30,
+  "published": true
+ },
+ {
+  "id": 2,
+  "name": "Mac air",
+  "price": 1200,
+  "quality": 30,
+  "published": true
+ },
+ {
+  "id": 3,
+  "name": "Mac air",
+  "price": 1200,
+  "quality": 30,
+  "published": true
+ },
+ {
+  "id": 4,
+  "name": "Mac air",
+  "price": 1200,
+  "quality": 30,
+  "published": true
+ },
+ {
+  "id": 5,
+  "name": "Mac air",
+  "price": 1200,
+  "quality": 30,
+  "published": true
+ }
+]
