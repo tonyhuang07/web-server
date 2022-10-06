@@ -25,6 +25,16 @@ func NewProduct(p products.Service) *Product {
 		service: p}
 }
 
+// StoreProducts godoc
+// @Summary Store products
+// @Tags Products
+// @Description store products
+// @Accept  json
+// @Produce  json
+// @Param token header string true "token"
+// @Param product body request true "Product to store"
+// @Success 200 {object} web.Response
+// @Router /products [post]
 func (p *Product) Store(ctx *gin.Context) {
 	var req request
 	err := ctx.ShouldBindJSON(&req)
@@ -60,6 +70,15 @@ func (p *Product) Store(ctx *gin.Context) {
 	ctx.JSON(200, product)
 }
 
+// ListProducts godoc
+// @Summary List products
+// @Tags Products
+// @Description get products
+// @Accept  json
+// @Produce  json
+// @Param token header string true "token"
+// @Success 200 {object} web.Response
+// @Router /products [get]
 func (p *Product) GetAll(ctx *gin.Context) {
 	token := ctx.GetHeader("token")
 	if token != os.Getenv("TOKEN") {
