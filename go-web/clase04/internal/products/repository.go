@@ -22,6 +22,7 @@ type Repository interface {
 	LastID() (int, error)
 	Update(id int, name string, price float64, quality int, published bool) (Product, error)
 	UpdatePrice(id int, price float64) (Product, error)
+	UpdateName(id int, name string) (Product, error)
 	Delete(id int) error
 }
 
@@ -110,6 +111,21 @@ func (repo *repository) UpdatePrice(id int, price float64) (Product, error) {
 	for i := range products {
 		if products[i].ID == id {
 			products[i].Price = price
+			return products[i], nil
+		}
+	}
+	return Product{}, fmt.Errorf("product with id %d not found", id)
+}
+
+func (repo *repository) UpdateName(id int, name string) (Product, error) {
+	var products []Product
+	err := repo.db.Read(&products)
+	if err != nil {
+		return Product{}, err
+	}
+	for i := range products {
+		if products[i].ID == id {
+			products[i].Name = name
 			return products[i], nil
 		}
 	}
