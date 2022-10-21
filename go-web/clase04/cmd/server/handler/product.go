@@ -152,25 +152,30 @@ func (p *Product) Delete(ctx *gin.Context) {
 	ctx.JSON(204, web.NewResponse(204, nil, ""))
 }
 
-func (p *Product) UpdatePrice(ctx *gin.Context) {
+func (p *Product) UpdateName(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(400, web.NewResponse(400, nil, "invalid id"))
 		return
 	}
+
 	var req request
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(400, web.NewResponse(400, nil, err.Error()))
 		return
 	}
-	if req.Price == 0 {
-		ctx.JSON(400, web.NewResponse(400, nil, "price is required"))
+
+	if req.Name == "" {
+		ctx.JSON(400, web.NewResponse(400, nil, "name is required"))
 		return
 	}
-	product, err := p.service.UpdatePrice(id, req.Price)
+
+	product, err := p.service.UpdateName(id, req.Name)
 	if err != nil {
 		ctx.JSON(404, web.NewResponse(404, nil, err.Error()))
 		return
 	}
-	ctx.JSON(200, web.NewResponse(200, product, ""))
+
+	ctx.JSON(200, product)
 }

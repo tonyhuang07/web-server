@@ -3,26 +3,16 @@ package products
 import (
 	"fmt"
 
+	"github.com/tonyhuang07/web-server/go-web/clase04/internal/domain"
 	"github.com/tonyhuang07/web-server/go-web/clase04/pkg/store"
 )
 
-type Product struct {
-	ID        int     `json:"id" `
-	Name      string  `json:"name" `
-	Price     float64 `json:"price" `
-	Quality   int     `json:"quality"`
-	Published bool    `json:"published"`
-}
-
-var products []Product
-
 type Repository interface {
-	Store(id int, name string, price float64, quality int, published bool) (Product, error)
-	GetAll() ([]Product, error)
+	Store(id int, name string, price float64, quality int, published bool) (domain.Product, error)
+	GetAll() ([]domain.Product, error)
 	LastID() (int, error)
-	Update(id int, name string, price float64, quality int, published bool) (Product, error)
-	UpdatePrice(id int, price float64) (Product, error)
-	UpdateName(id int, name string) (Product, error)
+	Update(id int, name string, price float64, quality int, published bool) (*domain.Product, error)
+	UpdateName(id int, name string) (domain.Product, error)
 	Delete(id int) error
 }
 
@@ -36,13 +26,13 @@ func NewRepository(db store.Store) Repository {
 	}
 }
 
-func (repo *repository) Store(id int, name string, price float64, quality int, published bool) (Product, error) {
-	var products []Product
+func (repo *repository) Store(id int, name string, price float64, quality int, published bool) (domain.Product, error) {
+	var products []domain.Product
 	err := repo.db.Read(&products)
 	if err != nil {
-		return Product{}, err
+		return domain.Product{}, err
 	}
-	product := Product{
+	product := domain.Product{
 		ID:        id,
 		Name:      name,
 		Price:     price,
@@ -51,15 +41,17 @@ func (repo *repository) Store(id int, name string, price float64, quality int, p
 	}
 
 	products = append(products, product)
-	if err := repo.db.Write(products); err != nil {
-		return Product{}, err
+
+	err = repo.db.Write(&products)
+	if err != nil {
+		return domain.Product{}, err
 	}
 
 	return product, nil
 }
 
 func (repo *repository) LastID() (int, error) {
-	var products []Product
+	var products []domain.Product
 	err := repo.db.Read(&products)
 	if err != nil {
 		return 0, err
@@ -70,8 +62,8 @@ func (repo *repository) LastID() (int, error) {
 	return products[len(products)-1].ID, nil
 }
 
-func (repo *repository) GetAll() ([]Product, error) {
-	var products []Product
+func (repo *repository) GetAll() ([]domain.Product, error) {
+	var products []domain.Product
 	err := repo.db.Read(&products)
 	if err != nil {
 		return nil, err
@@ -79,55 +71,86 @@ func (repo *repository) GetAll() ([]Product, error) {
 	return products, nil
 }
 
-func (repo *repository) Update(id int, name string, price float64, quality int, published bool) (Product, error) {
-	product := Product{
-		Name:      name,
-		Price:     price,
-		Quality:   quality,
-		Published: published,
+func (r *repository) UpdateName(id int, nombre string) (domain.Product, error) {
+	var updated bool = false
+	var producp []domain.Product
+	if err := r.db.Read(&producp); err != nil {
+		return domain.Product{}, err
 	}
 
-	for i := range products {
-		if products[i].ID == id {
-			product.ID = id
-			products[i] = product
-			return product, nil
+	var product *domain.Product
+	for _, value := range producp {
+		if value.ID == id {
+			value.Name = nombre
+			product = &value
+			updated = true
 		}
 	}
-	return Product{}, fmt.Errorf("product with id %d not found", id)
+
+	if !updated {
+		return domain.Product{}, fmt.Errorf("domain.product id %d not found", id)
+	}
+
+	if err := r.db.Write(&producp); err != nil {
+		return domain.Product{}, err
+	}
+
+	return *product, nil
 }
 
-func (repo *repository) Delete(id int) error {
-	for i := range products {
-		if products[i].ID == id {
-			products = append(products[:i], products[i+1:]...)
-			return nil
+func (r *repository) Update(id int, name string, price float64, quality int, published bool) (*domain.Product, error) {
+	var updated bool = false
+	var producp []*domain.Product
+	if err := r.db.Read(&producp); err != nil {
+		return nil, err
+	}
+
+	var product *domain.Product
+	for _, value := range producp {
+		if value.ID == id {
+			value.Name = name
+			value.Price = price
+			value.Quality = quality
+			value.Published = published
+			product = value
+			updated = true
 		}
 	}
-	return fmt.Errorf("product with id %d not found", id)
+
+	if !updated {
+		return nil, fmt.Errorf("domain.product id %d not found", id)
+	}
+
+	if err := r.db.Write(&producp); err != nil {
+		return nil, err
+	}
+
+	return product, nil
 }
 
-func (repo *repository) UpdatePrice(id int, price float64) (Product, error) {
-	for i := range products {
-		if products[i].ID == id {
-			products[i].Price = price
-			return products[i], nil
-		}
-	}
-	return Product{}, fmt.Errorf("product with id %d not found", id)
-}
+func (r *repository) Delete(id int) error {
+	deleted := false
+	var indice int
 
-func (repo *repository) UpdateName(id int, name string) (Product, error) {
-	var products []Product
-	err := repo.db.Read(&products)
-	if err != nil {
-		return Product{}, err
+	var p []*domain.Product
+	if err := r.db.Read(&p); err != nil {
+		return err
 	}
-	for i := range products {
-		if products[i].ID == id {
-			products[i].Name = name
-			return products[i], nil
+	for value := range p {
+		if p[value].ID == id {
+			indice = value
+			deleted = true
 		}
 	}
-	return Product{}, fmt.Errorf("product with id %d not found", id)
+
+	if !deleted {
+		return fmt.Errorf("domain.product id %d not exist", id)
+	}
+
+	p = append(p[:indice], p[indice+1:]...)
+	if err := r.db.Write(&p); err != nil {
+		return err
+	}
+
+	return nil
 }

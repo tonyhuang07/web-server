@@ -122,5 +122,9 @@ func main() {
 	r.GET("/products", GetAll)
 	r.GET("/products/:id", GetById)
 	// r.GET("/test", GetTest)
-	r.Run()
+	err := r.Run()
+	if err != nil {
+		panic(err)
+	}
+
 }

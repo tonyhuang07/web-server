@@ -41,7 +41,10 @@ func main() {
 	rootProduct.POST("/", product.Store)
 	rootProduct.GET("/", product.GetAll)
 	rootProduct.PUT("/:id", product.Update)
-	rootProduct.PATCH("/:id", product.UpdatePrice)
+	rootProduct.PATCH("/:id", product.UpdateName)
 	rootProduct.DELETE("/:id", product.Delete)
-	r.Run()
+	errRun := r.Run()
+	if errRun != nil {
+		panic(err)
+	}
 }
